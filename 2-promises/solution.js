@@ -24,16 +24,37 @@ const id = yourRandomMethod() //third run
 7. log the resultant fullname, or the error, at the end
 */
 
+import firstnames from "./firstnames.js"
+import lastnames from "./lastnames.js"
+
 function solution() {
     // YOUR SOLUTION GOES HERE
+    let first = ""
+    let last = ""
 
     // You generate your id value here
+    const rng = Math.round(Math.random() * 100) * (Math.round(Math.random()) === 1 ? 1 : -1) // randomly make it negative
 
     // You call the lastnames method with your id
+    lastnames(rng)
 
     // You call the firstname method
-
+    .then((lastname)=>{
+        last = lastname
+        return firstnames(lastname)
+    })
+    .then(firstname=>{
+        first = firstname
+    })
+    
     // You log the fullname, or error, here
+    .then(() =>{
+        console.log(`The full name is ${first} ${last}.`)
+    })
+    .catch(err=>{
+        console.log("There was an error. Message = ", err.message)
+    })
+
 }
 
 solution()

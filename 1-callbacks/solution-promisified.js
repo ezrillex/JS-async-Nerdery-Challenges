@@ -63,11 +63,14 @@ function solution() {
         }
         
     }
+    // Extra challenge #2. I don't quite get it. This does work, but how to only 'promisify the callback' is a bit confusing. 
+    // this is not really using the promise or so I think? I need a bit more guidance as to what this extra challenge expected. 
+    const myCallbackPromise = util.promisify(myCallback)
 
     // iterate the names array and validate them with the method
     for (let index = 0; index < names.length; index++) {
         const name = names[index];
-        validateUser(name, myCallback)
+        validateUser(name, myCallbackPromise)
     }
 
     // log the final result
