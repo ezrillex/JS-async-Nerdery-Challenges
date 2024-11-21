@@ -19,8 +19,8 @@ Example:
 8. add any needed adjustment to solution() function
 9. as extra challenge: add Promise.race() and Promise.any(), and try to get the idea of what happens
 */
-import prices from "./prices.js";
-import products from "./products.js";
+const prices = require("./prices.js");
+const products = require("./products.js");
 
 async function solution() {
     // is this a bad practice? declaring but no initalization of variables that will eventually have a value in all logic branches?
@@ -98,4 +98,4 @@ async function solution() {
 
 }
 
-await solution();
+solution();

@@ -24,8 +24,8 @@ const id = yourRandomMethod() //third run
 7. log the resultant fullname, or the error, at the end
 */
 
-import firstnames from "./firstnames.js";
-import lastnames from "./lastnames.js";
+const firstnames = require("./firstnames.js");
+const lastnames = require("./lastnames.js");
 
 function solution() {
     // YOUR SOLUTION GOES HERE
