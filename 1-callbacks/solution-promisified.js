@@ -34,7 +34,7 @@ node solution.js name1 name2 name3
 import validateUser from "./validate-user.js";
 import util from "node:util"
 
-function solution() {
+async function solution() {
     // you get your 5 names here
     const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"]
 
@@ -43,43 +43,33 @@ function solution() {
         // just add them, so that I don't have to type a bunch in terminal. 
         names.push(...process.argv.slice(2))
     }
-    
-    const okNames = []
-    const errNames = []
-    let cbCount = 0 // console results are shown before all cbs finish, so I will add logic to avoid showing until last cb
 
-    // YOUR SOLUTION GOES HERE
-    const myCallback = (...params)=>{ // expand because if is in list it sends 2
-        if(params[0] instanceof Error){
-            errNames.push( params[0].message)
-        }
-        else {
-            okNames.push(params[1])
-        }
-        cbCount++
+    // Extra challenge #2. Here I am not promisifyiing the callback only, I tried but it was too confusing. 
+    // Assuming promisifying the whole funciton is valid. And this is following the "error first pattern". 
+    // I think I understood wrong, I thought initially the callback was the only one to be wrapped in a promise. 
+    // But this makes more sense since I pass it a callback and promisify wrapper adds a callback to receive the value.
+    const promValidateUser = util.promisify(validateUser)
 
-        if(cbCount === names.length){
-            showResults()
-        }
-        
-    }
-    // Extra challenge #2. I don't quite get it. This does work, but how to only 'promisify the callback' is a bit confusing. 
-    // this is not really using the promise or so I think? I need a bit more guidance as to what this extra challenge expected. 
-    const myCallbackPromise = util.promisify(myCallback)
-
+    const validationPromises = []
     // iterate the names array and validate them with the method
     for (let index = 0; index < names.length; index++) {
-        const name = names[index];
-        validateUser(name, myCallbackPromise)
+        // so callback that we used to pass is now passed by the promisified wrapper.
+        // because my callback was just receivieng and pushing to results array the results.
+        // this is done automatically by promisified callback. thus only passing names. 
+        validationPromises.push(promValidateUser(names[index]))  
     }
+    const data = await Promise.allSettled(validationPromises)
+    showResults()
 
     // log the final result
     function showResults(){
         console.log("Success")
-        okNames.forEach(item => console.log(`Id: ${item.id}\nName: ${item.name}`))
+        data.filter(item=>item.status === "fulfilled").forEach(item => console.log(`Id: ${item.value.id}\nName: ${item.value.name}`))
         console.log("\nFailure")
-        errNames.forEach(item => console.log(item))
+        data.filter(item=>item.status === "rejected").forEach(item => console.log(item.reason.message))
     }
+
+
     
 }
 
