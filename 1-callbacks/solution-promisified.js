@@ -39,8 +39,10 @@ async function solution() {
     const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"];
 
     // extra challange #1 read from terminal arguments
+    // eslint-disable-next-line no-undef
     if(process.argv.length > 2){
         // just add them, so that I don't have to type a bunch in terminal. 
+        // eslint-disable-next-line no-undef
         names.push(...process.argv.slice(2));
     }
 
@@ -56,7 +58,7 @@ async function solution() {
         // so callback that we used to pass is now passed by the promisified wrapper.
         // because my callback was just receivieng and pushing to results array the results.
         // this is done automatically by promisified callback. thus only passing names. 
-        validationPromises.push(promValidateUser(names[index]))  ;
+        validationPromises.push(promisifiedValidateUsed(names[index]))  ;
     }
     const data = await Promise.allSettled(validationPromises);
     showResults();
