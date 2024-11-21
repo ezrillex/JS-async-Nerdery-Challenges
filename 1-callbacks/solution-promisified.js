@@ -48,7 +48,7 @@ async function solution() {
     // Assuming promisifying the whole funciton is valid. And this is following the "error first pattern". 
     // I think I understood wrong, I thought initially the callback was the only one to be wrapped in a promise. 
     // But this makes more sense since I pass it a callback and promisify wrapper adds a callback to receive the value.
-    const promValidateUser = util.promisify(validateUser);
+    const promisifiedValidateUsed = util.promisify(validateUser);
 
     const validationPromises = [];
     // iterate the names array and validate them with the method
