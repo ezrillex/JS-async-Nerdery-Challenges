@@ -32,54 +32,53 @@ node solution.js name1 name2 name3
 ** give a look to node.js util.promisify, avoid to alter the validate-user.file **
 */
 import validateUser from "./validate-user.js";
-import util from "node:util"
 
 function solution() {
     // you get your 5 names here
-    const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"]
+    const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"];
 
     // extra challange #1 read from terminal arguments
     if(process.argv.length > 2){
         // just add them, so that I don't have to type a bunch in terminal. 
-        names.push(...process.argv.slice(2))
+        names.push(...process.argv.slice(2));
     }
     
-    const okNames = []
-    const errNames = []
-    let cbCount = 0 // console results are shown before all cbs finish, so I will add logic to avoid showing until last cb
+    const okNames = [];
+    const errNames = [];
+    let cbCount = 0 ; // console results are shown before all cbs finish, so I will add logic to avoid showing until last cb
 
     // YOUR SOLUTION GOES HERE
     const myCallback = (...params)=>{ // expand because if is in list it sends 2
         if(params[0] instanceof Error){
-            errNames.push( params[0].message)
+            errNames.push( params[0].message);
         }
         else {
-            okNames.push(params[1])
+            okNames.push(params[1]);
         }
-        cbCount++
+        cbCount++;
 
         if(cbCount === names.length){
-            showResults()
+            showResults();
         }
         
-    }
+    };
 
     // iterate the names array and validate them with the method
     for (let index = 0; index < names.length; index++) {
         const name = names[index];
-        validateUser(name, myCallback)
+        validateUser(name, myCallback);
     }
 
     // log the final result
     function showResults(){
-        console.log("Success")
-        okNames.forEach(item => console.log(`Id: ${item.id}\nName: ${item.name}`))
-        console.log("\nFailure")
-        errNames.forEach(item => console.log(item))
+        console.log("Success");
+        okNames.forEach(item => console.log(`Id: ${item.id}\nName: ${item.name}`));
+        console.log("\nFailure");
+        errNames.forEach(item => console.log(item));
     }
     
 }
 
-solution()
+solution();
 
 
