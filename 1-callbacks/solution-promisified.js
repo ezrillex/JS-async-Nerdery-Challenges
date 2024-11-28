@@ -35,46 +35,45 @@ const validateUser = require("./validate-user.js");
 const util = require("node:util");
 
 async function solution() {
-    // you get your 5 names here
-    const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"];
+  // you get your 5 names here
+  const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"];
 
-    // extra challange #1 read from terminal arguments
+  // extra challange #1 read from terminal arguments
+  // eslint-disable-next-line no-undef
+  if (process.argv.length > 2) {
     // eslint-disable-next-line no-undef
-    if(process.argv.length > 2){
-        // just add them, so that I don't have to type a bunch in terminal. 
-        // eslint-disable-next-line no-undef
-        names.push(...process.argv.slice(2));
-    }
+    names.push(...process.argv.slice(2));
+  }
 
-    // Extra challenge #2. Here I am not promisifyiing the callback only, I tried but it was too confusing. 
-    // Assuming promisifying the whole funciton is valid. And this is following the "error first pattern". 
-    // I think I understood wrong, I thought initially the callback was the only one to be wrapped in a promise. 
-    // But this makes more sense since I pass it a callback and promisify wrapper adds a callback to receive the value.
-    const promisifiedValidateUsed = util.promisify(validateUser);
+  // Extra challenge #2. Promisify the callback function.
+  const promisifiedValidateUsed = util.promisify(validateUser);
 
-    const validationPromises = [];
-    // iterate the names array and validate them with the method
-    for (let index = 0; index < names.length; index++) {
-        // so callback that we used to pass is now passed by the promisified wrapper.
-        // because my callback was just receivieng and pushing to results array the results.
-        // this is done automatically by promisified callback. thus only passing names. 
-        validationPromises.push(promisifiedValidateUsed(names[index]))  ;
-    }
-    const data = await Promise.allSettled(validationPromises);
-    showResults();
+  const validationPromises = [];
+  // iterate the names array and validate them with the method
+  for (const name of names) {
+    validationPromises.push(promisifiedValidateUsed(name));
+  }
 
-    // log the final result
-    function showResults(){
-        console.log("Success");
-        data.filter(item=>item.status === "fulfilled").forEach(item => console.log(`Id: ${item.value.id}\nName: ${item.value.name}`));
-        console.log("\nFailure");
-        data.filter(item=>item.status === "rejected").forEach(item => console.log(item.reason.message));
-    }
+  const data = await Promise.allSettled(validationPromises);
 
+  showResults(data);
 
-    
+  // log the final result
+  function showResults(data) {
+    console.log(
+      data.reduce(
+        (accumulator, currentValue, currentIndex, array) => {
+          if (currentValue.status === "fulfilled") {
+            accumulator.success.push(currentValue.value);
+          } else if (currentValue.status === "rejected") {
+            accumulator.fail.push(currentValue.reason.message);
+          }
+          return accumulator;
+        },
+        { success: [], fail: [] },
+      ),
+    );
+  }
 }
 
 solution();
-
-

@@ -35,16 +35,14 @@ const validateUser = require("./validate-user.js");
 
 // you get your 5 names here
 const names = ["Carlos", "Andrea", "Miguel", "Juan", "Richard"];
-const authorizedUsers = [];
-const unauthorizedUsers = [];
+const results = []
 let cbCount = 0 ; // console results are shown before all cbs finish, so I will add logic to avoid showing until last cb
 
 
 function solution() {
-    // extra challange #1 read from terminal arguments
+    // extra challange #1 read from terminal arguments (recommended to use a library for real scenarios)
     // eslint-disable-next-line no-undef
     if(process.argv.length > 2){
-        // just add them, so that I don't have to type a bunch in terminal. 
         // eslint-disable-next-line no-undef
         names.push(...process.argv.slice(2));
     }
@@ -57,28 +55,29 @@ function solution() {
 }
 
 const cbValidationResult = (...params)=>{ // expand because if is in list it sends 2
-    if(params[0] instanceof Error){
-        unauthorizedUsers.push( params[0].message);
-    }
-    else {
-        authorizedUsers.push(params[1]);
-    }
+    results.push(params);
     cbCount++;
-
     if(cbCount === names.length){
         showResults();
     }
-
 };
 
 // log the final result
 function showResults(){
-    console.log("Success");
-    authorizedUsers.forEach(item => console.log(`Id: ${item.id}\nName: ${item.name}`));
-    console.log("\nFailure");
-    unauthorizedUsers.forEach(item => console.log(item));
+    console.log(
+        results.reduce(
+            (accumulator, currentValue, currentIndex, array) => {
+                if(currentValue[0] instanceof Error){
+                    accumulator.unauthorized.push( currentValue[0].message);
+                }
+                else {
+                    accumulator.authorized.push(currentValue[1]);
+                }
+                return accumulator;
+            },
+            { authorized: [], unauthorized: [] },
+        ),
+    );
 }
 
 solution();
-
-
