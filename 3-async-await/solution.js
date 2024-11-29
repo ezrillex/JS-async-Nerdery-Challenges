@@ -23,79 +23,67 @@ const prices = require("./prices.js");
 const products = require("./products.js");
 
 async function solution() {
-    // is this a bad practice? declaring but no initalization of variables that will eventually have a value in all logic branches?
-    let allResult, settledResult, raceResult, anyResult;
+  // is this a bad practice? declaring but no initalization of variables that will eventually have a value in all logic branches?
+  let allResult, settledResult, raceResult, anyResult;
 
-    // You generate your id value here
-    const rng = parseInt(Date.now().toString().slice(-2));
+  // You generate your id value here
+  const random = parseInt(Date.now().toString().slice(-2));
 
-    // Yes, here we generate new promises for each method, 
-    // we could remove the awaits and wrap the promises in another promise
-    // but that is too meta for this exercise for now. 
+  const promises = [products(random), prices(random)];
 
-    // You use Promise.all() here
-    try {
-        allResult = await Promise.all([prices(rng), products(rng)]);
-    }
-    catch (error) {
-        allResult = error;
-    }
+  // You use Promise.all() here
+  let all = "";
+  try {
+    const [all_product, all_price] = await Promise.all(promises);
+    all = `Product: ${all_product} Prices: ${all_price}`;
+  } catch (error) {
+    all = `Error: ${error.message}`;
+  } finally {
+    console.log(`All = Id: ${random} , ${all}`);
+  }
 
-    // You use Promise.allSettled() here
-    try {
-        settledResult = await Promise.allSettled([products(rng), prices(rng)]);
-    }
-    catch (error) {
-        settledResult = error;
-    }
+  // You use Promise.allSettled() here
+  settledResult = await Promise.allSettled(promises);
 
-    // Promise.race
-    try {
-        raceResult = await Promise.race([prices(rng), products(rng)]);
-    }
-    catch (error) {
-        raceResult = error;
-    }
+  console.log("Settled = ");
+  console.table(
+    settledResult.map(({ status, value, reason }, index) => {
+      return {
+        //index,
+        status,
+        name: index === 0 ? "Product" : "Price",
+        value: status === "fulfilled" ? value : reason.message,
+      };
+    }),
+  );
 
-    // Promise.any
-    try {
-        anyResult = await Promise.any([prices(rng), products(rng)]);
-    }
-    catch (error) {
-        anyResult = error;
-    }
+  // Promise.race
+  let race = "";
+  try {
+    const race_promise = await Promise.race(promises);
+    race =
+      typeof raceResult === "number"
+        ? `Prices: ${race_promise} `
+        : `Product: ${race_promise} `;
+  } catch (error) {
+    race = `Error: ${error.message}`;
+  } finally {
+    console.log(`Race = Id: ${random} `, race);
+  }
 
-    // Log the results, or errors, here
-
-    // If all has any errors we won't get any results even if other one succeded. 
-    console.log(`All = Id: ${rng} `, allResult instanceof Error ? `Error: ${allResult.message}` :
-        `Product: ${allResult[1]} Prices: ${allResult[0]}`);
-
-    console.log("Settled = ");
-    console.table(settledResult.map((item, index) => {
-        if (item.status === 'rejected') {
-            return ({
-                status: item.status,
-                name: index === 1 ? "Price" : "Product",
-                value: item.reason.message, // to have only one output column for each line
-            });
-        }
-        else {
-            return ({
-                status: item.status,
-                name: index === 1 ? "Price" : "Product",
-                value: item.value,
-            });
-        }
-    }));
-
-    console.log(`Race = Id: ${rng} `, raceResult instanceof Error ? `Error: ${raceResult.message}` :
-        (typeof raceResult === "number" ? `Prices: ${raceResult} ` : `Product: ${raceResult} `));
-
-    console.log(`Any = Id: ${rng} `, anyResult instanceof Error ? `Error: ${anyResult.message}` :
-        (typeof anyResult === "number" ? `Prices: ${anyResult} ` : `Product: ${anyResult} `));
-
-
+  // Promise.any
+  let any = "";
+  try {
+    const any_promise = await Promise.any(promises);
+    any =
+      typeof anyResult === "number"
+        ? `Prices: ${any_promise} `
+        : `Product: ${any_promise} `;
+  } catch (error) {
+    any = `Error: ${error.message}`;
+  } finally {
+    console.log(`Any = Id: ${random} `, any);
+  }
 }
 
 solution();
