@@ -24,37 +24,30 @@ const id = yourRandomMethod() //third run
 7. log the resultant fullname, or the error, at the end
 */
 
-const firstnames = require("./firstnames.js");
-const lastnames = require("./lastnames.js");
+const firstnames_function = require("./firstnames.js");
+const lastnames_function = require("./lastnames.js");
 
-function solution() {
-    // YOUR SOLUTION GOES HERE
-    let first = "";
-    let last = "";
-
+async function solution() {
     // You generate your id value here
-    const rng = Math.round(Math.random() * 100) * (Math.round(Math.random()) === 1 ? 1 : -1) ;// randomly make it negative
+    const random = Math.round(Math.random() * 100) * (Math.round(Math.random()) === 1 ? 1 : -1) ;// randomly make it negative
 
     // You call the lastnames method with your id
-    lastnames(rng)
+    const lastnames_promise = lastnames_function(random);
 
     // You call the firstname method
-    .then((lastname)=>{
-        last = lastname;
-        return firstnames(lastname);
-    })
-    .then(firstname=>{
-        first = firstname;
-    })
-    
+    const firstnames_promise = lastnames_promise.then((lastname)=>{
+        return firstnames_function(lastname)
+    });
+
     // You log the fullname, or error, here
-    .then(() =>{
-        console.log(`The full name is ${first} ${last}.`);
+    const full_name = Promise.all([firstnames_promise, lastnames_promise]);
+
+    full_name.then(results=>{
+        console.log('The full name is' , results.reduce((acc, curr) => {acc = acc + curr + ' '; return acc},""))
     })
     .catch(err=>{
         console.log("There was an error. Message = ", err.message);
-    });
-
+    })
 }
 
 solution();
